@@ -57,7 +57,7 @@ export default function Hero({ onAnalyze, isAnalyzing }: HeroProps) {
                 type="submit"
                 className="px-8 py-4 bg-brand text-white font-bold rounded-lg hover:bg-brand-light transition shadow-lg shadow-brand/20 active:scale-95 whitespace-nowrap text-lg"
               >
-                ANÁLISIS GRATIS
+                QUIERO MI PLAN DE CRECIMIENTO
               </button>
             </form>
             <p className="mt-4 text-sm text-slate-500 font-medium">

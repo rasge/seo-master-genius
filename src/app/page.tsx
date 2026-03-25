@@ -51,7 +51,7 @@ export default function Home() {
           <div className="flex h-16 justify-between items-center">
             <div className="flex shrink-0 items-center cursor-pointer" onClick={handleReset}>
               <span className="text-2xl font-black tracking-tighter text-slate-900 group">
-                Libertd<span className="text-brand group-hover:text-brand-light transition-colors">PRO</span>
+                Libertad<span className="text-brand group-hover:text-brand-light transition-colors">PRO</span>
                 <span className="ml-1 inline-block w-1.5 h-1.5 bg-brand rounded-full"></span>
               </span>
             </div>

@@ -19,7 +19,7 @@ export default function Footer() {
         </div>
         <div className="mt-8 md:order-1 md:mt-0">
           <p className="text-center text-xs leading-5 text-slate-400">
-            &copy; 2026 Libertd PRO Digital. Todos los derechos reservados.
+            &copy; 2026 Libertad PRO Digital. Todos los derechos reservados.
           </p>
           <div className="flex text-xs text-slate-500 justify-center space-x-4 mt-2">
             <a href="#" className="hover:text-white">Política de Privacidad</a>

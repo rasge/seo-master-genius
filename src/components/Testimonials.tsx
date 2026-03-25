@@ -3,28 +3,31 @@ import Image from "next/image";
 export default function Testimonials() {
   const testimonials = [
     {
-      body: "Desde que implementamos la estrategia de Libertd PRO Digital nuestras orgánicas subieron 300% en menos de 6 meses. Locura total.",
+      body: "En 5 meses pasamos de 800 a 3.200 visitas orgánicas mensuales. El equipo de Libertad PRO Digital encontró 14 keywords de alto valor que nuestra competencia ignoraba.",
       author: {
         name: "María Fernández",
-        handle: "CEO en SaaS Growth",
+        handle: "CEO · SaaS Growth",
+        industry: "Industria: Software B2B",
         imageUrl:
           "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
       },
     },
     {
-      body: "Un equipo letal. Cambiaron nuestros copies y la tasa de conversión pasó del 2% al 7%. Literalmente están imprimiendo dinero para nosotros.",
+      body: "Reescribieron nuestra página de producto y la conversión pasó del 1.8% al 6.4% en 3 semanas. Eso son $18.000 USD extra al mes sin aumentar el tráfico.",
       author: {
         name: "Carlos Rodríguez",
-        handle: "Founder E-commerce",
+        handle: "Founder · TiendaRapida.com",
+        industry: "Industria: E-commerce",
         imageUrl:
           "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
       },
     },
     {
-      body: "No contrates a nadie más si quieres dominar SEO y Copywriting en tu nicho. Es la mejor inversión de todo nuestro marketing budget.",
+      body: "Redujimos el CPL de nuestras campañas un 43% combinando su copy con nuestra segmentación. Ahora generamos 120 leads calificados por semana.",
       author: {
         name: "Elena Gómez",
-        handle: "Directora de Ads",
+        handle: "Directora de Performance · AgenciaAds",
+        industry: "Industria: Marketing",
         imageUrl:
           "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
       },
@@ -59,7 +62,9 @@ export default function Testimonials() {
                   />
                   <div>
                     <div className="font-semibold text-slate-900">{testimonial.author.name}</div>
-                    <div className="text-slate-600 text-sm">{testimonial.author.handle}</div>
+                    <div className="text-slate-600 text-xs">{testimonial.author.handle}</div>
+                    {/* @ts-ignore - industry exists in data but not yet in interfaces if any */}
+                    <div className="text-brand font-medium text-[10px] uppercase tracking-wider mt-0.5">{testimonial.author.industry}</div>
                   </div>
                 </figcaption>
               </figure>

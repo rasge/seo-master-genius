@@ -15,7 +15,7 @@ export default function BlogSection() {
     {
       title: "Automatiza tu Lead Gen en LinkedIn",
       href: "#",
-      description: "El funnel exacto que usamos en Libertd PRO Digital para agendar 30+ llamadas al mes en B2B.",
+      description: "El funnel exacto que usamos en Libertad PRO Digital para agendar 30+ llamadas al mes en B2B.",
       date: "Enero 2026",
     },
   ];

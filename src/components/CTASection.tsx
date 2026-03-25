@@ -9,7 +9,7 @@ export default function CTASection() {
             Vamos a detenerlos hoy mismo.
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-slate-300">
-            Agenda tu sesión de consultoría gratis con el equipo de Libertd PRO Digital. En 30 minutos te daremos el plan exacto para dominar tu nicho.
+            Agenda tu sesión de consultoría gratis con el equipo de Libertad PRO Digital. En 30 minutos te daremos el plan exacto para dominar tu nicho.
           </p>
 
           <form action="#" className="mt-10 mx-auto max-w-md w-full space-y-4 text-left">
@@ -34,6 +34,16 @@ export default function CTASection() {
                 required
                 className="w-full min-w-0 rounded-md border-0 bg-white/10 px-4 py-3 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 placeholder:text-slate-400"
                 placeholder="tu@empresa.com"
+              />
+            </div>
+            <div>
+              <label htmlFor="challenge" className="block text-sm font-medium text-slate-300 mb-2">¿Cuál es tu mayor desafío de marketing ahora?</label>
+              <textarea
+                id="challenge"
+                name="challenge"
+                rows={3}
+                className="w-full min-w-0 rounded-md border-0 bg-white/10 px-4 py-3 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand sm:text-sm sm:leading-6 placeholder:text-slate-400"
+                placeholder="Ej: No genero suficientes leads, mi web no convierte, no aparezco en Google..."
               />
             </div>
             <button
