@@ -31,6 +31,18 @@ export default function Home() {
     setShowReport(false);
   };
 
+  const navigateTo = (id: string) => {
+    handleReset();
+    setTimeout(() => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      } else if (id === 'top') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
   return (
     <main className="min-h-screen bg-white">
       {/* Sticky Glass Navbar */}
@@ -45,10 +57,10 @@ export default function Home() {
             </div>
             
             <div className="hidden md:flex items-center gap-8">
-              <a href="#servicios" className="text-sm font-bold text-slate-600 hover:text-brand transition">Servicios</a>
-              <a href="#proceso" className="text-sm font-bold text-slate-600 hover:text-brand transition">Método</a>
+              <button onClick={() => navigateTo('servicios')} className="text-sm font-bold text-slate-600 hover:text-brand transition cursor-pointer">Servicios</button>
+              <button onClick={() => navigateTo('proceso')} className="text-sm font-bold text-slate-600 hover:text-brand transition cursor-pointer">Método</button>
               <button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() => navigateTo('top')}
                 className="inline-flex items-center justify-center rounded-sm bg-brand px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-light transition"
               >
                 Auditoría Gratis
