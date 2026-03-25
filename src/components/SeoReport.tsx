@@ -64,19 +64,67 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
     window.print();
   };
 
+  // Simple hash function to seed "randomness" based on the URL
+  const generateData = (seed: string) => {
+    const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const getVal = (offset: number, min: number, max: number) => {
+      return Math.floor(((hash * offset) % (max - min + 1)) + min);
+    };
+
+    return {
+      score: getVal(7, 45, 98),
+      vitals: { score: getVal(3, 30, 99), val: getVal(3, 30, 99) > 80 ? 'Óptimo' : getVal(3, 30, 99) > 50 ? 'Mejorable' : 'Lento' },
+      index: { score: getVal(11, 40, 100), val: getVal(11, 40, 100) > 85 ? 'Excelente' : 'Limitada' },
+      eeat: { score: getVal(13, 20, 95), val: getVal(13, 20, 95) > 70 ? 'Fuerte' : 'Baja' },
+      tags: { score: getVal(17, 10, 98), val: getVal(17, 10, 98) > 75 ? 'Completo' : 'Incompleto' },
+      mobile: { score: getVal(19, 50, 100), val: getVal(19, 50, 100) > 90 ? 'Adaptado' : 'Mejorar' },
+      social: { score: getVal(23, 10, 90), val: getVal(23, 10, 90) > 60 ? 'Activo' : 'Crítico' },
+      security: { score: getVal(29, 90, 100), val: getVal(29, 90, 100) === 100 ? 'Seguro' : 'Vulnerable' },
+      alt: { score: getVal(31, 5, 95), val: getVal(31, 5, 95) > 80 ? 'Buen uso' : 'Pobre' }
+    };
+  };
+
+  const reportData = generateData(url);
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto py-20 px-4 text-center">
+        <style jsx>{`
+          @keyframes jump {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+          }
+          .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #ff5a3c;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: jump 1.4s infinite ease-in-out both;
+          }
+          .dot:nth-child(1) { animation-delay: -0.32s; }
+          .dot:nth-child(2) { animation-delay: -0.16s; }
+        `}</style>
+        
         <div className="relative inline-block mb-10">
           <div className="w-32 h-32 border-4 border-brand/20 border-t-brand rounded-full animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center font-bold text-2xl text-brand">
             {progress}%
           </div>
         </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-4 animate-pulse">
+        <h2 className="text-3xl font-bold text-slate-900 mb-4">
           Escaneando: <span className="text-brand break-all">{url}</span>
         </h2>
-        <p className="text-slate-500 font-medium text-lg">{status}</p>
+        
+        <div className="flex items-center justify-center gap-2 mb-8 h-8">
+          <p className="text-slate-500 font-medium text-lg">{status}</p>
+          <div className="flex">
+            <span className="dot"></span>
+            <span className="dot"></span>
+            <span className="dot"></span>
+          </div>
+        </div>
         
         <div className="mt-12 grid grid-cols-2 lg:grid-cols-5 gap-4 text-left max-w-5xl mx-auto">
           {steps.map((step, idx) => (
@@ -113,21 +161,21 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center px-12 py-8 bg-brand rounded-4xl shadow-2xl shadow-brand/30 transform hover:rotate-1 transition duration-500">
-          <div className="text-7xl font-black text-white leading-none">82</div>
+          <div className="text-7xl font-black text-white leading-none">{reportData.score}</div>
           <div className="text-white/80 font-bold uppercase text-[10px] mt-2 tracking-[0.2em]">Puntaje SEO</div>
         </div>
       </div>
 
       {/* 8 Metric Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <MetricCard title="Core Web Vitals" value="Óptimo" score={94} icon={<Zap className="text-yellow-500" />} />
-        <MetricCard title="Indexabilidad" value="Excelente" score={88} icon={<Layout className="text-blue-500" />} />
-        <MetricCard title="E-E-A-T Signal" value="Mejorable" score={65} icon={<Shield className="text-brand" />} />
-        <MetricCard title="Meta Tags" value="Corregido" score={78} icon={<Settings className="text-indigo-500" />} />
-        <MetricCard title="Mobile Friendly" value="Adaptado" score={92} icon={<Smartphone className="text-green-500" />} />
-        <MetricCard title="Social Meta" value="Crítico" score={42} icon={<Share2 className="text-pink-500" />} />
-        <MetricCard title="Seguridad HTTPS" value="Seguro" score={100} icon={<Lock className="text-emerald-500" />} />
-        <MetricCard title="Alt Text Imgs" value="Pobre" score={35} icon={<ImageIcon className="text-orange-500" />} />
+        <MetricCard title="Core Web Vitals" value={reportData.vitals.val} score={reportData.vitals.score} icon={<Zap className="text-yellow-500" />} />
+        <MetricCard title="Indexabilidad" value={reportData.index.val} score={reportData.index.score} icon={<Layout className="text-blue-500" />} />
+        <MetricCard title="E-E-A-T Signal" value={reportData.eeat.val} score={reportData.eeat.score} icon={<Shield className="text-brand" />} />
+        <MetricCard title="Meta Tags" value={reportData.tags.val} score={reportData.tags.score} icon={<Settings className="text-indigo-500" />} />
+        <MetricCard title="Mobile Friendly" value={reportData.mobile.val} score={reportData.mobile.score} icon={<Smartphone className="text-green-500" />} />
+        <MetricCard title="Social Meta" value={reportData.social.val} score={reportData.social.score} icon={<Share2 className="text-pink-500" />} />
+        <MetricCard title="Seguridad HTTPS" value={reportData.security.val} score={reportData.security.score} icon={<Lock className="text-emerald-500" />} />
+        <MetricCard title="Alt Text Imgs" value={reportData.alt.val} score={reportData.alt.score} icon={<ImageIcon className="text-orange-500" />} />
       </div>
 
       {/* Problems & Action Plan */}
@@ -138,24 +186,26 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
           </h3>
           <ul className="space-y-6">
             <IssueItem 
-              severity="critical"
+              severity={reportData.vitals.score < 50 ? "critical" : "warning"}
               title="LCP (Largest Contentful Paint) Lento"
-              desc="La imagen hero tarda 3.42s en ser interactiva. Esto aumenta el rebote en un 24%."
+              desc={`La imagen principal tarda más de ${(5 - reportData.vitals.score/20).toFixed(1)}s en cargar. Impacta negativamente en el posicionamiento.`}
+            />
+            {reportData.eeat.score < 60 && (
+              <IssueItem 
+                severity="critical"
+                title="Falta de señales Trustworthiness"
+                desc="No se detectó página de privacidad o política de cookies clara. Google penaliza este factor."
+              />
+            )}
+            <IssueItem 
+              severity={reportData.alt.score < 50 ? "critical" : "warning"}
+              title="Problemas con imágenes (Alt Text)"
+              desc={`Se detectaron ${Math.floor(100 - reportData.alt.score)} imágenes sin su etiqueta descriptiva correspondiente.`}
             />
             <IssueItem 
               severity="warning"
-              title="Schema Markup Ausente"
-              desc="Faltan datos estructurados de 'LocalBusiness' y 'Review'. Google no muestra estrellas en los resultados."
-            />
-            <IssueItem 
-              severity="critical"
-              title="Faltan 42 Alt Text"
-              desc="Imágenes clave de productos no tienen descripción, bloqueando el tráfico de Google Imágenes."
-            />
-            <IssueItem 
-              severity="warning"
-              title="H1 Duplicados detectados"
-              desc="La página tiene 2 encabezados H1, lo que diluye la fuerza de tu palabra clave principal."
+              title="Marcado de Datos Estructurados"
+              desc="La implementación del Schema JSON-LD es parcial. Se recomienda ampliar a Breadcrumbs y Review."
             />
           </ul>
         </div>
@@ -168,23 +218,23 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
             <div className="space-y-8">
               <ActionItem 
                 num="01"
-                title="Migración Masiva a AVIF"
-                desc="Comprime y convierte tus 42 imágenes críticas a AVIF para reducir el peso en un 70%."
+                title="Compresión Inteligente"
+                desc="Optimiza los recursos estáticos para mejorar el LCP y reducir el peso total de la página."
               />
               <ActionItem 
                 num="02"
-                title="Inyección de JSON-LD Pro"
-                desc="Instala un script de marcado estructurado para 'Organization', 'Review' y 'Breadcrumbs'."
+                title="Ampliar Marcado Pro"
+                desc="Inyecta marcado avanzado de 'LocalBusiness' para mejorar la presencia en el mapa de Google."
               />
               <ActionItem 
                 num="03"
-                title="Fusión estratégica de H1"
-                desc="Unifica tus encabezados H1 en una sola frase potente que incluya tu keyword principal."
+                title="Estrategia de Meta-datos"
+                desc="Asegura que cada página tenga un meta título único de entre 50 y 60 caracteres."
               />
               <ActionItem 
                 num="04"
-                title="Configuración de OpenGraph"
-                desc="Las redes sociales no muestran previsualizaciones. Configura las etiquetas og:image y twitter:card."
+                title="Optimización de Imágenes"
+                desc="Completa los atributos 'alt' de todas las imágenes para capturar tráfico de búsqueda visual."
               />
             </div>
           </div>
