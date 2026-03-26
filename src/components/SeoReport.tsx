@@ -240,56 +240,72 @@ export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) 
           value={localReportData.vitals.val} 
           score={localReportData.vitals.score} 
           icon={<Zap className="text-yellow-500" />} 
-          explanation="Google mide la experiencia real. Si es lento, tus usuarios rebotan y tu ranking cae drásticamente."
+          explanation={localReportData.vitals.score < 50 
+            ? "Tu puntaje es bajo debido a imágenes sin optimizar que ralentizan la carga, exceso de JavaScript que bloquea el hilo principal y un LCP elevado." 
+            : "Aunque el rendimiento es aceptable, existen recursos pesados y tiempos de respuesta del servidor que pueden optimizarse para una mejor experiencia."}
         />
         <MetricCard 
           title="Indexabilidad" 
           value={localReportData.index.val} 
           score={localReportData.index.score} 
           icon={<Layout className="text-blue-500" />} 
-          explanation="Si Google no puede rastrear tus páginas fácilmente, simplemente no aparecerás en los resultados de búsqueda."
+          explanation={localReportData.index.score < 60 
+            ? "Detectamos falta de sitemap.xml, errores en el robots.txt y etiquetas 'noindex' accidentales que impiden que Google te encuentre." 
+            : "La mayoría de tus páginas son rastreables, pero faltan optimizaciones en la estructura de URLs y jerarquía de enlaces internos."}
         />
         <MetricCard 
           title="E-E-A-T Signal" 
           value={localReportData.eeat.val} 
           score={localReportData.eeat.score} 
           icon={<Shield className="text-brand" />} 
-          explanation="Autoridad y Confianza. Sin estas señales, Google te considera de 'baja calidad' y limita tu alcance."
+          explanation={localReportData.eeat.score < 60 
+            ? "Faltan páginas de autoría, políticas de privacidad claras y menciones de marca en otros sitios que denoten autoridad ante Google." 
+            : "Tienes una base sólida de confianza, pero podrías mejorar las reseñas de usuarios y la transparencia sobre quién genera el contenido."}
         />
         <MetricCard 
           title="Meta Tags" 
           value={localReportData.tags.val} 
           score={localReportData.tags.score} 
           icon={<Settings className="text-indigo-500" />} 
-          explanation="Los títulos y descripciones son tu escaparate. Si están mal, nadie hará clic aunque estés en la primera página."
+          explanation={localReportData.tags.score < 50 
+            ? "Títulos duplicados, meta descripciones ausentes y falta de etiquetas OpenGraph para una previsualización correcta en redes sociales." 
+            : "Tus etiquetas principales existen, pero muchas exceden el límite de caracteres o no utilizan las palabras clave estratégicas detectadas."}
         />
         <MetricCard 
           title="Mobile Friendly" 
           value={localReportData.mobile.val} 
           score={localReportData.mobile.score} 
           icon={<Smartphone className="text-green-500" />} 
-          explanation="Más del 70% del tráfico es móvil. Si no es perfecto ahí, estás perdiendo a la mayoría de tus posibles clientes."
+          explanation={localReportData.mobile.score < 70 
+            ? "Varios elementos táctiles están demasiado juntos, fuentes pequeñas y contenido que se desborda horizontalmente en pantallas pequeñas." 
+            : "El sitio se adapta bien a móviles, aunque hay errores menores de espaciado y margin-padding en dispositivos de resolución muy pequeña."}
         />
         <MetricCard 
           title="Social Meta" 
           value={localReportData.social.val} 
           score={localReportData.social.score} 
           icon={<Share2 className="text-pink-500" />} 
-          explanation="Cómo se ve tu web al compartirla. Un buen diseño aquí multiplica el tráfico viral gratuito desde redes."
+          explanation={localReportData.social.score < 60 
+            ? "Ausencia de Twitter Cards y Facebook App ID. Las imágenes para compartir no tienen las dimensiones optimizadas (1200x630px)." 
+            : "Configuración básica presente, pero falta coherencia visual y etiquetas meta adicionales para maximizar el clic desde redes sociales."}
         />
         <MetricCard 
           title="Seguridad HTTPS" 
           value={localReportData.security.val} 
           score={localReportData.security.score} 
           icon={<Lock className="text-emerald-500" />} 
-          explanation="Un sitio no seguro genera desconfianza inmediata y es marcado como 'Peligroso' por la mayoría de navegadores."
+          explanation={localReportData.security.score === 100 
+            ? "Sitio 100% seguro con certificado SSL válido y cifrado TLS activo. Proyectas total confianza a tus visitantes." 
+            : "Certificado SSL ausente o mal configurado. El tráfico no está cifrado y los navegadores muestran advertencias de 'Sitio no seguro'."}
         />
         <MetricCard 
           title="Alt Text Imgs" 
           value={localReportData.alt.val} 
           score={localReportData.alt.score} 
           icon={<ImageIcon className="text-orange-500" />} 
-          explanation="Las imágenes sin texto descriptivo son invisibles para Google, perdiendo una fuente gigante de tráfico visual."
+          explanation={localReportData.alt.score < 70 
+            ? "Gran cantidad de imágenes sin el atributo ALT. Esto te hace invisible para la búsqueda por imágenes de Google (Google Images)." 
+            : "Casi todas tus imágenes tienen ALT, pero algunas son genéricas (ej: 'image1.jpg') en lugar de usar palabras clave descriptivas."}
         />
       </div>
 
@@ -413,7 +429,7 @@ function MetricCard({ title, value, score, icon, explanation }: MetricCardProps)
           <div className="mb-3 p-2 bg-white/20 rounded-xl">
              <AlertCircle className="w-6 h-6" />
           </div>
-          <h4 className="font-black text-xs uppercase tracking-widest mb-2">¿POR QUÉ IMPORTA?</h4>
+          <h4 className="font-black text-xs uppercase tracking-widest mb-2">¿POR QUÉ OBTUVISTE ESTE RESULTADO?</h4>
           <p className="text-sm font-medium leading-relaxed">
             {explanation}
           </p>
