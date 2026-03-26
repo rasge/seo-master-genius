@@ -54,7 +54,6 @@ export default function DashboardPage() {
       // Fetch recent analyses
       const { data } = await supabase
         .from('analyses')
-        .from('analyses')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
