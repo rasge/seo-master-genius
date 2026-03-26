@@ -77,7 +77,7 @@ export default function Navbar({ onReset, navigateTo }: NavbarProps) {
                   onClick={() => setIsAuthModalOpen(true)}
                   className="inline-flex items-center justify-center rounded-sm bg-brand px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-light transition"
                 >
-                  Entrar
+                  LOGIN / REGISTRO
                 </button>
               )}
             </div>
