@@ -3,6 +3,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import Link from 'next/link';
 
 interface HeroProps {
   onAnalyze: (url: string) => void;
@@ -11,6 +13,7 @@ interface HeroProps {
 
 export default function Hero({ onAnalyze, isAnalyzing }: HeroProps) {
   const [url, setUrl] = useState('');
+  const { user } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,8 +45,8 @@ export default function Hero({ onAnalyze, isAnalyzing }: HeroProps) {
         </p>
 
         {!isAnalyzing && (
-          <div className="mt-12 max-w-3xl mx-auto">
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 bg-white/50 glass p-2 rounded-xl shadow-2xl border border-slate-200 focus-within:border-brand/40 transition-colors">
+          <div className="mt-12 max-w-3xl mx-auto flex flex-col items-center gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 bg-white/50 glass p-2 rounded-xl shadow-2xl border border-slate-200 focus-within:border-brand/40 transition-colors w-full">
               <input
                 type="url"
                 placeholder="Escribe la URL de tu web (ej: https://tuweb.com)..."
@@ -60,9 +63,17 @@ export default function Hero({ onAnalyze, isAnalyzing }: HeroProps) {
                 QUIERO MI PLAN DE CRECIMIENTO
               </button>
             </form>
-            <p className="mt-4 text-sm text-slate-500 font-medium">
-              Únete a +2,500 dueños de negocios obsesionados con el crecimiento.
-            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center gap-2 text-sm font-medium">
+              <p className="text-slate-500">
+                Únete a +2,500 dueños de negocios obsesionados con el crecimiento.
+              </p>
+              {!user && (
+                <Link href="/auth" className="text-brand hover:text-brand-light transition font-black flex items-center gap-1">
+                  • O ENTRA CON TU CUENTA <span className="text-xs text-brand/50">→</span>
+                </Link>
+              )}
+            </div>
           </div>
         )}
         

@@ -235,14 +235,62 @@ export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) 
 
       {/* 8 Metric Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <MetricCard title="Core Web Vitals" value={localReportData.vitals.val} score={localReportData.vitals.score} icon={<Zap className="text-yellow-500" />} />
-        <MetricCard title="Indexabilidad" value={localReportData.index.val} score={localReportData.index.score} icon={<Layout className="text-blue-500" />} />
-        <MetricCard title="E-E-A-T Signal" value={localReportData.eeat.val} score={localReportData.eeat.score} icon={<Shield className="text-brand" />} />
-        <MetricCard title="Meta Tags" value={localReportData.tags.val} score={localReportData.tags.score} icon={<Settings className="text-indigo-500" />} />
-        <MetricCard title="Mobile Friendly" value={localReportData.mobile.val} score={localReportData.mobile.score} icon={<Smartphone className="text-green-500" />} />
-        <MetricCard title="Social Meta" value={localReportData.social.val} score={localReportData.social.score} icon={<Share2 className="text-pink-500" />} />
-        <MetricCard title="Seguridad HTTPS" value={localReportData.security.val} score={localReportData.security.score} icon={<Lock className="text-emerald-500" />} />
-        <MetricCard title="Alt Text Imgs" value={localReportData.alt.val} score={localReportData.alt.score} icon={<ImageIcon className="text-orange-500" />} />
+        <MetricCard 
+          title="Core Web Vitals" 
+          value={localReportData.vitals.val} 
+          score={localReportData.vitals.score} 
+          icon={<Zap className="text-yellow-500" />} 
+          explanation="Google mide la experiencia real. Si es lento, tus usuarios rebotan y tu ranking cae drásticamente."
+        />
+        <MetricCard 
+          title="Indexabilidad" 
+          value={localReportData.index.val} 
+          score={localReportData.index.score} 
+          icon={<Layout className="text-blue-500" />} 
+          explanation="Si Google no puede rastrear tus páginas fácilmente, simplemente no aparecerás en los resultados de búsqueda."
+        />
+        <MetricCard 
+          title="E-E-A-T Signal" 
+          value={localReportData.eeat.val} 
+          score={localReportData.eeat.score} 
+          icon={<Shield className="text-brand" />} 
+          explanation="Autoridad y Confianza. Sin estas señales, Google te considera de 'baja calidad' y limita tu alcance."
+        />
+        <MetricCard 
+          title="Meta Tags" 
+          value={localReportData.tags.val} 
+          score={localReportData.tags.score} 
+          icon={<Settings className="text-indigo-500" />} 
+          explanation="Los títulos y descripciones son tu escaparate. Si están mal, nadie hará clic aunque estés en la primera página."
+        />
+        <MetricCard 
+          title="Mobile Friendly" 
+          value={localReportData.mobile.val} 
+          score={localReportData.mobile.score} 
+          icon={<Smartphone className="text-green-500" />} 
+          explanation="Más del 70% del tráfico es móvil. Si no es perfecto ahí, estás perdiendo a la mayoría de tus posibles clientes."
+        />
+        <MetricCard 
+          title="Social Meta" 
+          value={localReportData.social.val} 
+          score={localReportData.social.score} 
+          icon={<Share2 className="text-pink-500" />} 
+          explanation="Cómo se ve tu web al compartirla. Un buen diseño aquí multiplica el tráfico viral gratuito desde redes."
+        />
+        <MetricCard 
+          title="Seguridad HTTPS" 
+          value={localReportData.security.val} 
+          score={localReportData.security.score} 
+          icon={<Lock className="text-emerald-500" />} 
+          explanation="Un sitio no seguro genera desconfianza inmediata y es marcado como 'Peligroso' por la mayoría de navegadores."
+        />
+        <MetricCard 
+          title="Alt Text Imgs" 
+          value={localReportData.alt.val} 
+          score={localReportData.alt.score} 
+          icon={<ImageIcon className="text-orange-500" />} 
+          explanation="Las imágenes sin texto descriptivo son invisibles para Google, perdiendo una fuente gigante de tráfico visual."
+        />
       </div>
 
       {/* Problems & Action Plan */}
@@ -321,26 +369,57 @@ interface MetricCardProps {
   value: string | number;
   score: number;
   icon: React.ReactNode;
+  explanation: string;
 }
 
-function MetricCard({ title, value, score, icon }: MetricCardProps) {
+function MetricCard({ title, value, score, icon, explanation }: MetricCardProps) {
+  const [isFlipped, setIsFlipped] = useState(false);
+
   return (
-    <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 hover:border-brand/40 transition-all group hover:-translate-y-1">
-      <div className="flex justify-between items-start mb-4">
-        <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-brand/5 transition">
-          {icon}
+    <div 
+      className="perspective-1000 group cursor-pointer h-48"
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
+      <div className={`relative w-full h-full transition-all duration-700 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+        
+        {/* Front Side */}
+        <div className="absolute inset-0 backface-hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-100 group-hover:border-brand/40 transition-all flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-brand/5 transition">
+                {icon}
+              </div>
+              <div className={`font-black text-sm p-1 px-2 rounded-lg bg-slate-50 ${score > 80 ? 'text-green-600' : score > 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                {score}%
+              </div>
+            </div>
+            <h4 className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">{title}</h4>
+            <p className="text-xl font-black text-slate-800 mt-1">{value}</p>
+          </div>
+          
+          <div>
+            <div className="mt-3 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-1000 ${score > 80 ? 'bg-green-500' : score > 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                style={{ width: `${score}%` }}
+              ></div>
+            </div>
+            <p className="text-[9px] font-bold text-brand mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">CLIC PARA SABER POR QUÉ</p>
+          </div>
         </div>
-        <div className={`font-black text-sm p-1 px-2 rounded-lg bg-slate-50 ${score > 80 ? 'text-green-600' : score > 60 ? 'text-yellow-600' : 'text-red-600'}`}>
-          {score}%
+
+        {/* Back Side */}
+        <div className="absolute inset-0 backface-hidden bg-brand p-6 rounded-3xl shadow-xl border border-brand/20 rotate-y-180 flex flex-col justify-center items-center text-center text-white">
+          <div className="mb-3 p-2 bg-white/20 rounded-xl">
+             <AlertCircle className="w-6 h-6" />
+          </div>
+          <h4 className="font-black text-xs uppercase tracking-widest mb-2">¿POR QUÉ IMPORTA?</h4>
+          <p className="text-sm font-medium leading-relaxed">
+            {explanation}
+          </p>
+          <p className="text-[9px] font-bold text-white/50 mt-4 uppercase">Clic para volver</p>
         </div>
-      </div>
-      <h4 className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">{title}</h4>
-      <p className="text-xl font-black text-slate-800 mt-1">{value}</p>
-      <div className="mt-3 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-        <div 
-          className={`h-full transition-all duration-1000 ${score > 80 ? 'bg-green-500' : score > 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
-          style={{ width: `${score}%` }}
-        ></div>
+
       </div>
     </div>
   );

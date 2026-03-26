@@ -73,29 +73,30 @@ export default function Navbar({ onReset, navigateTo }: NavbarProps) {
                   )}
                 </div>
               ) : (
-                <button 
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="inline-flex items-center justify-center rounded-sm bg-brand px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-light transition"
+                <Link 
+                  href="/auth"
+                  className="inline-flex items-center justify-center rounded-xl bg-brand px-6 py-2.5 text-sm font-black text-white shadow-lg shadow-brand/20 hover:bg-brand-light hover:translate-y-[-1px] transition-all active:scale-95 uppercase tracking-tight"
                 >
                   LOGIN / REGISTRO
-                </button>
+                </Link>
               )}
             </div>
             
             <div className="md:hidden">
-              {/* Mobile menu logic could be here, keeping it simple for now */}
-              <button 
-                onClick={() => user ? setIsUserMenuOpen(!isUserMenuOpen) : setIsAuthModalOpen(true)}
-                className="p-2 text-slate-600"
-              >
-                {user ? (
-                   <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center text-white font-bold text-xs">
+              {user ? (
+                <button 
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="p-2 text-slate-600"
+                >
+                  <div className="w-8 h-8 rounded-full bg-brand flex items-center justify-center text-white font-bold text-xs">
                     {user.email?.[0].toUpperCase()}
                   </div>
-                ) : (
-                  <User className="w-6 h-6" />
-                )}
-              </button>
+                </button>
+              ) : (
+                <Link href="/auth" className="p-2 text-slate-600">
+                   <User className="w-6 h-6" />
+                </Link>
+              )}
             </div>
           </div>
         </div>
