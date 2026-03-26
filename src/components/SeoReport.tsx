@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   CheckCircle2, 
   AlertCircle, 
-  Search, 
   Settings, 
   Shield, 
   Zap, 
@@ -26,13 +25,25 @@ interface SeoReportProps {
   onReset: () => void;
 }
 
+interface ReportData {
+  score: number;
+  vitals: { score: number; val: string };
+  index: { score: number; val: string };
+  eeat: { score: number; val: string };
+  tags: { score: number; val: string };
+  mobile: { score: number; val: string };
+  social: { score: number; val: string };
+  security: { score: number; val: string };
+  alt: { score: number; val: string };
+}
+
 export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) {
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('Pidiendo acceso a la URL...');
 
-  const steps = [
+  const steps = useMemo(() => [
     'Estableciendo conexión...',
     'Rastreando estructura DOM...',
     'Analizando tiempos de respuesta...',
@@ -43,7 +54,7 @@ export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) 
     'Validando Schema Markup JSON-LD...',
     'Detectando señales E-E-A-T...',
     'Generando informe estratégico...'
-  ];
+  ], []);
 
   const generateData = (seed: string) => {
     const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -65,7 +76,7 @@ export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) 
   };
 
 
-  const [localReportData, setLocalReportData] = useState<any>(null);
+  const [localReportData, setLocalReportData] = useState<ReportData | null>(null);
 
   useEffect(() => {
     async function checkExisting() {
@@ -86,7 +97,7 @@ export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) 
       return false;
     }
 
-    let interval: any;
+    let interval: NodeJS.Timeout;
 
     checkExisting().then((exists) => {
       if (exists) return;
@@ -104,7 +115,7 @@ export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) 
         if (currentStep < steps.length - 1) {
           currentStep++;
           setStatus(steps[currentStep]);
-          setProgress((prev) => Math.min(prev + 10, 95));
+          setProgress((prev: number) => Math.min(prev + 10, 95));
         } else {
           clearInterval(interval);
           setTimeout(async () => {
@@ -305,7 +316,14 @@ export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) 
   );
 }
 
-function MetricCard({ title, value, score, icon }: any) {
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  score: number;
+  icon: React.ReactNode;
+}
+
+function MetricCard({ title, value, score, icon }: MetricCardProps) {
   return (
     <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 hover:border-brand/40 transition-all group hover:-translate-y-1">
       <div className="flex justify-between items-start mb-4">
@@ -328,7 +346,13 @@ function MetricCard({ title, value, score, icon }: any) {
   );
 }
 
-function IssueItem({ title, desc, severity }: any) {
+interface IssueItemProps {
+  title: string;
+  desc: string;
+  severity: 'critical' | 'warning';
+}
+
+function IssueItem({ title, desc, severity }: IssueItemProps) {
   return (
     <li className="flex gap-4 items-start p-5 bg-slate-50/50 hover:bg-white border border-transparent hover:border-slate-100 rounded-2xl transition shadow-sm hover:shadow-md">
       <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${severity === 'critical' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-yellow-500'}`}></div>
@@ -340,7 +364,13 @@ function IssueItem({ title, desc, severity }: any) {
   );
 }
 
-function ActionItem({ num, title, desc }: any) {
+interface ActionItemProps {
+  num: string;
+  title: string;
+  desc: string;
+}
+
+function ActionItem({ num, title, desc }: ActionItemProps) {
   return (
     <div className="flex gap-5 group">
       <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-light font-black text-xl leading-none group-hover:bg-brand group-hover:text-white transition-all">

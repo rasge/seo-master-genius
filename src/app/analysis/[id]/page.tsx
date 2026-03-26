@@ -8,11 +8,19 @@ import Footer from '@/components/Footer';
 import SeoReport from '@/components/SeoReport';
 import { useRouter } from 'next/navigation';
 
+interface Analysis {
+  id: string;
+  url: string;
+  domain: string;
+  score_overall: number;
+  status: string;
+}
+
 export default function AnalysisViewPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const { user, supabase, loading: authLoading } = useAuth();
+  const { supabase, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [analysis, setAnalysis] = useState<any>(null);
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,11 +60,13 @@ export default function AnalysisViewPage({ params }: { params: Promise<{ id: str
     <div className="min-h-screen bg-white">
       <Navbar onReset={() => router.push('/')} navigateTo={() => router.push('/')} />
       <div className="pt-24 pb-20">
-        <SeoReport 
-          url={analysis.url} 
-          analysisId={analysis.id}
-          onReset={() => router.push('/')} 
-        />
+        {analysis && (
+          <SeoReport 
+            url={analysis.url} 
+            analysisId={analysis.id}
+            onReset={() => router.push('/')} 
+          />
+        )}
       </div>
       <Footer />
     </div>

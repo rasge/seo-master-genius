@@ -63,7 +63,7 @@ export default function Testimonials() {
                   <div>
                     <div className="font-semibold text-slate-900">{testimonial.author.name}</div>
                     <div className="text-slate-600 text-xs">{testimonial.author.handle}</div>
-                    {/* @ts-ignore - industry exists in data but not yet in interfaces if any */}
+
                     <div className="text-brand font-medium text-[10px] uppercase tracking-wider mt-0.5">{testimonial.author.industry}</div>
                   </div>
                 </figcaption>

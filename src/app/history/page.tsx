@@ -7,13 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useRouter } from 'next/navigation';
 import { 
-  BarChart3, 
   Clock, 
-  ChevronRight, 
-  CheckCircle2, 
-  AlertCircle,
-  TrendingUp,
-  Globe,
   ArrowLeft,
   Calendar,
   LayoutGrid,
@@ -21,10 +15,19 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+interface Analysis {
+  id: string;
+  domain: string;
+  url: string;
+  score_overall: number;
+  created_at: string;
+  status: 'completed' | 'running' | 'pending' | 'failed';
+}
+
 export default function HistoryPage() {
   const { user, supabase, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [analyses, setAnalyses] = useState<any[]>([]);
+  const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -177,8 +180,8 @@ function ScoreBadge({ score, size = 'sm' }: { score: number, size?: 'sm'|'lg' })
   );
 }
 
-function StatusIndicator({ status }: { status: string }) {
-  const configs: any = {
+function StatusIndicator({ status }: { status: Analysis['status'] }) {
+  const configs: Record<string, { color: string; text: string; pulse: boolean }> = {
     completed: { color: 'bg-green-500', text: 'LISTO', pulse: false },
     running: { color: 'bg-blue-500', text: 'EN PROGRESO', pulse: true },
     pending: { color: 'bg-slate-300', text: 'PENDIENTE', pulse: false },

@@ -18,11 +18,20 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+interface Analysis {
+  id: string;
+  domain: string;
+  url: string;
+  score_overall: number;
+  created_at: string;
+  status: 'completed' | 'running' | 'pending' | 'failed';
+}
+
 export default function DashboardPage() {
   const { user, supabase, loading: authLoading } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState({ total: 0, thisMonth: 0 });
-  const [recentAnalyses, setRecentAnalyses] = useState<any[]>([]);
+  const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -185,7 +194,14 @@ export default function DashboardPage() {
   );
 }
 
-function StatCard({ title, value, icon, trend }: any) {
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend: string;
+}
+
+function StatCard({ title, value, icon, trend }: StatCardProps) {
   return (
     <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 glass">
       <div className="flex justify-between items-start mb-4">
@@ -214,8 +230,8 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const configs: any = {
+function StatusBadge({ status }: { status: Analysis['status'] }) {
+  const configs: Record<string, { color: string; icon: React.ReactNode; text: string }> = {
     completed: { color: 'text-green-500', icon: <CheckCircle2 className="w-3 h-3" />, text: 'Completado' },
     running: { color: 'text-blue-500', icon: <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />, text: 'Analizando...' },
     pending: { color: 'text-slate-400', icon: <Clock className="w-3 h-3" />, text: 'Pendiente' },
