@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Hero from "@/components/Hero";
 import ClientLogos from "@/components/ClientLogos";
 import Services from "@/components/Services";
@@ -11,27 +11,49 @@ import BlogSection from "@/components/BlogSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 import SeoReport from "@/components/SeoReport";
+import Navbar from "@/components/Navbar";
+import { createClient } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
   const [analyzingUrl, setAnalyzingUrl] = useState<string | null>(null);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const { user } = useAuth();
+  const supabase = createClient();
 
-  const handleAnalyze = (url: string) => {
+  const handleAnalyze = async (url: string) => {
     setAnalyzingUrl(url);
-    setShowReport(false);
+    setShowReport(true); // Mostrar reporte inmediatamente (él maneja la simulación)
     
-    // Simulate report generation timing
-    setTimeout(() => {
-      setShowReport(true);
-    }, 8500); // 8.5 seconds of "analysis" simulation
+    // 1. Create analysis entry in Supabase (PENDING)
+    try {
+      const { data } = await supabase
+        .from('analyses')
+        .insert({
+          url,
+          user_id: user?.id || null,
+          status: 'pending',
+          domain: new URL(url).hostname.replace('www.', '')
+        })
+        .select()
+        .single();
+      
+      if (data) {
+        setAnalysisId(data.id);
+      }
+    } catch (e) {
+      console.error("Error creating analysis record:", e);
+    }
   };
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setAnalyzingUrl(null);
+    setAnalysisId(null);
     setShowReport(false);
-  };
+  }, []);
 
-  const navigateTo = (id: string) => {
+  const navigateTo = useCallback((id: string) => {
     handleReset();
     setTimeout(() => {
       const element = document.getElementById(id);
@@ -41,48 +63,21 @@ export default function Home() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }, 100);
-  };
+  }, [handleReset]);
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Sticky Glass Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/70 glass border-b border-slate-200/50 transition-all duration-300">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between items-center">
-            <div className="flex shrink-0 items-center cursor-pointer" onClick={handleReset}>
-              <span className="text-2xl font-black tracking-tighter text-slate-900 group">
-                Libertad<span className="text-brand group-hover:text-brand-light transition-colors">PRO</span>
-                <span className="ml-1 inline-block w-1.5 h-1.5 bg-brand rounded-full"></span>
-              </span>
-            </div>
-            
-            <div className="hidden md:flex items-center gap-8">
-              <button onClick={() => navigateTo('servicios')} className="text-sm font-bold text-slate-600 hover:text-brand transition cursor-pointer">Servicios</button>
-              <button onClick={() => navigateTo('proceso')} className="text-sm font-bold text-slate-600 hover:text-brand transition cursor-pointer">Método</button>
-              <button 
-                onClick={() => navigateTo('top')}
-                className="inline-flex items-center justify-center rounded-sm bg-brand px-5 py-2 text-sm font-bold text-white shadow-sm hover:bg-brand-light transition"
-              >
-                Auditoría Gratis
-              </button>
-            </div>
-            
-            <div className="md:hidden">
-              <button className="p-2 text-slate-600" id="mobile-menu-toggle">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar onReset={handleReset} navigateTo={navigateTo} />
 
       {/* Secciones de la Landing */}
       {analyzingUrl ? (
         <div className="pt-16 min-h-screen">
           {showReport ? (
-            <SeoReport url={analyzingUrl} onReset={handleReset} />
+            <SeoReport 
+              url={analyzingUrl} 
+              analysisId={analysisId}
+              onReset={handleReset} 
+            />
           ) : (
             <Hero onAnalyze={handleAnalyze} isAnalyzing={true} />
           )}

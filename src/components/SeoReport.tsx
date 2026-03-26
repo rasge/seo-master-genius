@@ -18,12 +18,16 @@ import {
   FileText
 } from 'lucide-react';
 
+import { createClient } from '@/lib/supabase';
+
 interface SeoReportProps {
   url: string;
+  analysisId?: string | null;
   onReset: () => void;
 }
 
-export default function SeoReport({ url, onReset }: SeoReportProps) {
+export default function SeoReport({ url, analysisId, onReset }: SeoReportProps) {
+  const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('Pidiendo acceso a la URL...');
@@ -41,30 +45,6 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
     'Generando informe estratégico...'
   ];
 
-  useEffect(() => {
-    let currentStep = 0;
-    const interval = setInterval(() => {
-      if (currentStep < steps.length - 1) {
-        currentStep++;
-        setStatus(steps[currentStep]);
-        setProgress((prev) => Math.min(prev + 10, 95));
-      } else {
-        clearInterval(interval);
-        setTimeout(() => {
-          setLoading(false);
-          setProgress(100);
-        }, 1000);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleDownloadPdf = () => {
-    window.print();
-  };
-
-  // Simple hash function to seed "randomness" based on the URL
   const generateData = (seed: string) => {
     const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const getVal = (offset: number, min: number, max: number) => {
@@ -84,9 +64,85 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
     };
   };
 
-  const reportData = generateData(url);
 
-  if (loading) {
+  const [localReportData, setLocalReportData] = useState<any>(null);
+
+  useEffect(() => {
+    async function checkExisting() {
+      if (analysisId) {
+        const { data } = await supabase
+          .from('analyses')
+          .select('*')
+          .eq('id', analysisId)
+          .single();
+        
+        if (data && data.status === 'completed' && data.results) {
+          setLocalReportData(data.results);
+          setLoading(false);
+          setProgress(100);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    let interval: any;
+
+    checkExisting().then((exists) => {
+      if (exists) return;
+
+      if (analysisId) {
+        supabase
+          .from('analyses')
+          .update({ status: 'running' })
+          .eq('id', analysisId)
+          .then(() => {}); // fire and forget
+      }
+
+      let currentStep = 0;
+      interval = setInterval(() => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          setStatus(steps[currentStep]);
+          setProgress((prev) => Math.min(prev + 10, 95));
+        } else {
+          clearInterval(interval);
+          setTimeout(async () => {
+            const dataToSave = generateData(url);
+            setLocalReportData(dataToSave);
+            setLoading(false);
+            setProgress(100);
+
+            if (analysisId) {
+              await supabase
+                .from('analyses')
+                .update({
+                  status: 'completed',
+                  score_overall: dataToSave.score,
+                  score_technical: Math.max(dataToSave.security.score, dataToSave.vitals.score),
+                  score_content: Math.max(dataToSave.eeat.score, dataToSave.tags.score),
+                  score_performance: dataToSave.vitals.score,
+                  results: dataToSave,
+                  completed_at: new Date().toISOString()
+                })
+                .eq('id', analysisId);
+            }
+          }, 1000);
+        }
+      }, 1000);
+    });
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [analysisId, url, supabase, steps]);
+
+  const handleDownloadPdf = () => {
+    window.print();
+  };
+
+
+  if (loading || !localReportData) {
     return (
       <div className="max-w-4xl mx-auto py-20 px-4 text-center">
         <style jsx>{`
@@ -161,21 +217,21 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center px-12 py-8 bg-brand rounded-4xl shadow-2xl shadow-brand/30 transform hover:rotate-1 transition duration-500">
-          <div className="text-7xl font-black text-white leading-none">{reportData.score}</div>
+          <div className="text-7xl font-black text-white leading-none">{localReportData.score}</div>
           <div className="text-white/80 font-bold uppercase text-[10px] mt-2 tracking-[0.2em]">Puntaje SEO</div>
         </div>
       </div>
 
       {/* 8 Metric Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <MetricCard title="Core Web Vitals" value={reportData.vitals.val} score={reportData.vitals.score} icon={<Zap className="text-yellow-500" />} />
-        <MetricCard title="Indexabilidad" value={reportData.index.val} score={reportData.index.score} icon={<Layout className="text-blue-500" />} />
-        <MetricCard title="E-E-A-T Signal" value={reportData.eeat.val} score={reportData.eeat.score} icon={<Shield className="text-brand" />} />
-        <MetricCard title="Meta Tags" value={reportData.tags.val} score={reportData.tags.score} icon={<Settings className="text-indigo-500" />} />
-        <MetricCard title="Mobile Friendly" value={reportData.mobile.val} score={reportData.mobile.score} icon={<Smartphone className="text-green-500" />} />
-        <MetricCard title="Social Meta" value={reportData.social.val} score={reportData.social.score} icon={<Share2 className="text-pink-500" />} />
-        <MetricCard title="Seguridad HTTPS" value={reportData.security.val} score={reportData.security.score} icon={<Lock className="text-emerald-500" />} />
-        <MetricCard title="Alt Text Imgs" value={reportData.alt.val} score={reportData.alt.score} icon={<ImageIcon className="text-orange-500" />} />
+        <MetricCard title="Core Web Vitals" value={localReportData.vitals.val} score={localReportData.vitals.score} icon={<Zap className="text-yellow-500" />} />
+        <MetricCard title="Indexabilidad" value={localReportData.index.val} score={localReportData.index.score} icon={<Layout className="text-blue-500" />} />
+        <MetricCard title="E-E-A-T Signal" value={localReportData.eeat.val} score={localReportData.eeat.score} icon={<Shield className="text-brand" />} />
+        <MetricCard title="Meta Tags" value={localReportData.tags.val} score={localReportData.tags.score} icon={<Settings className="text-indigo-500" />} />
+        <MetricCard title="Mobile Friendly" value={localReportData.mobile.val} score={localReportData.mobile.score} icon={<Smartphone className="text-green-500" />} />
+        <MetricCard title="Social Meta" value={localReportData.social.val} score={localReportData.social.score} icon={<Share2 className="text-pink-500" />} />
+        <MetricCard title="Seguridad HTTPS" value={localReportData.security.val} score={localReportData.security.score} icon={<Lock className="text-emerald-500" />} />
+        <MetricCard title="Alt Text Imgs" value={localReportData.alt.val} score={localReportData.alt.score} icon={<ImageIcon className="text-orange-500" />} />
       </div>
 
       {/* Problems & Action Plan */}
@@ -186,11 +242,11 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
           </h3>
           <ul className="space-y-6">
             <IssueItem 
-              severity={reportData.vitals.score < 50 ? "critical" : "warning"}
+              severity={localReportData.vitals.score < 50 ? "critical" : "warning"}
               title="LCP (Largest Contentful Paint) Lento"
-              desc={`La imagen principal tarda más de ${(5 - reportData.vitals.score/20).toFixed(1)}s en cargar. Impacta negativamente en el posicionamiento.`}
+              desc={`La imagen principal tarda más de ${(5 - localReportData.vitals.score/20).toFixed(1)}s en cargar. Impacta negativamente en el posicionamiento.`}
             />
-            {reportData.eeat.score < 60 && (
+            {localReportData.eeat.score < 60 && (
               <IssueItem 
                 severity="critical"
                 title="Falta de señales Trustworthiness"
@@ -198,9 +254,9 @@ export default function SeoReport({ url, onReset }: SeoReportProps) {
               />
             )}
             <IssueItem 
-              severity={reportData.alt.score < 50 ? "critical" : "warning"}
+              severity={localReportData.alt.score < 50 ? "critical" : "warning"}
               title="Problemas con imágenes (Alt Text)"
-              desc={`Se detectaron ${Math.floor(100 - reportData.alt.score)} imágenes sin su etiqueta descriptiva correspondiente.`}
+              desc={`Se detectaron ${Math.floor(100 - localReportData.alt.score)} imágenes sin su etiqueta descriptiva correspondiente.`}
             />
             <IssueItem 
               severity="warning"
